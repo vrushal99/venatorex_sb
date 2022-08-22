@@ -373,8 +373,7 @@
       var newLine = 0;
       var finalTotalBill = 0;
       var finalTotalProject = 0;
-      var masterObj = {};
-      var countSL = 0;
+
       var newArray = [];
       var subdifference = 0;
       var countProject = 0;
@@ -393,7 +392,6 @@
           var getVendor = searchResult[i].getText({
             name: "custrecord_coa_vendor",
             join: "CUSTRECORD_COA_PROJECT_NAME",
-            sort: search.Sort.ASC,
             label: "Vendor",
           });
 
@@ -463,9 +461,6 @@
 
           var a = newArray.indexOf(getVendor1);
           //  log.debug("a", a);
-          masterObj["coaCount"] = countProject;
-          masterObj["billCount"] = countBill;
-          masterObj["vendor"] = getVendor1;
 
           if (a == -1) {
             var totalProject = 0;
@@ -507,7 +502,6 @@
                 type: serverWidget.FieldType.TEXT,
                 value: positiveProject,
               });
-              masterObj["amountProject"] = positiveProject;
 
               amountTotal.setSublistValue({
                 id: "custpage_total_project",
@@ -552,13 +546,11 @@
               });
             }
 
-            countProject++;
-
             var searchResultCountBill = searchForBill(newRecordObj, getVendor1);
             //  log.debug(" bill length", searchResultCountBill.length);
             var billLength = searchResultCountBill.length;
 
-           // countProject = billLength + 1;
+            countProject = billLength + 1;
             // log.debug("countProject", countProject);
 
             if (_logValidation(searchResultCountBill)) {
@@ -622,7 +614,7 @@
                     type: serverWidget.FieldType.TEXT,
                     value: posBill,
                   });
-                  masterObj["amountBill"] = posBill;
+
                   amountTotal.setSublistValue({
                     id: "custpage_total_bill",
                     line: 0,
@@ -632,154 +624,73 @@
 
                   //   log.debug("finalTotalBill", finalTotalBill);
                 }
-                //log.debug("countBill first", countBill);
+                log.debug("countBill first", countBill);
 
-               // countProject = countBill + 1;
+                countProject = countBill + 1;
 
-                // o_sublistObjCOA.setSublistValue({
-                //   id: "custpage_billtype",
-                //   line: countProject, //parseInt(j),
-                //   type: serverWidget.FieldType.TEXT,
-                //   value: "Bill Subtotal",
-                // });
+                o_sublistObjCOA.setSublistValue({
+                  id: "custpage_billtype",
+                  line: countProject, //parseInt(j),
+                  type: serverWidget.FieldType.TEXT,
+                  value: "Bill Subtotal",
+                });
 
-                // o_sublistObjCOA.setSublistValue({
-                //   id: "custpage_amount_bill",
-                //   line: countProject, //parseInt(j),
-                //   type: serverWidget.FieldType.TEXT,
-                //   value: totalBill,
-                // });
+                o_sublistObjCOA.setSublistValue({
+                  id: "custpage_amount_bill",
+                  line: countProject, //parseInt(j),
+                  type: serverWidget.FieldType.TEXT,
+                  value: totalBill,
+                });
 
                 //   countBill = countBill + 1;
 
-                //log.debug("countBill first", countBill);
+                log.debug("countBill first", countBill);
                 countBill++;
-  
-                masterObj["billCount"] = countBill;
               }
 
-              log.debug("masterObj", masterObj);
-              log.debug("masterObj.billCount", masterObj.billCount);
-              // countBill++;
-              // countProject++;
-              // countProject = countBill + 1;
-              if (masterObj.billCount > masterObj.coaCount) {
-                countSL = masterObj.billCount;
-  
-                //set subtotal line
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_notes",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: "Project Subtotal",
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_amount",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: totalProject,
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_billtype",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: "Bill Subtotal",
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_amount_bill",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: totalBill,
-                });
-  
-                countSL++;
-                countBill++;
-              } else {
-                countSL = masterObj.coaCount;
-  
-                //set subtotal line
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_notes",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: "Project Subtotal",
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_amount",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: totalProject,
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_billtype",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: "Bill Subtotal",
-                });
-  
-                o_sublistObjCOA.setSublistValue({
-                  id: "custpage_amount_bill",
-                  line: countSL,
-                  type: serverWidget.FieldType.TEXT,
-                  value: totalBill,
-                });
-  
-                countSL++;
-                countProject++;
-              }
-  
-              masterObj["subTotalCount"] = countSL;
-              
-              // o_sublistObjCOA.setSublistValue({
-              //   id: "custpage_notes",
-              //   line: countProject - 1,
-              //   type: serverWidget.FieldType.TEXT,
-              //   value: "Project Subtotal",
-              // });
+              countBill++;
+              countProject++;
+              countProject = countBill + 1;
 
-              // o_sublistObjCOA.setSublistValue({
-              //   id: "custpage_amount",
-              //   line: countProject - 1,
-              //   type: serverWidget.FieldType.TEXT,
-              //   value: totalProject,
-              // });
+              o_sublistObjCOA.setSublistValue({
+                id: "custpage_notes",
+                line: countProject - 1,
+                type: serverWidget.FieldType.TEXT,
+                value: "Project Subtotal",
+              });
 
-              // var lineSubtotal = countProject - 1;
-              // //log.debug("lineSubtotal", lineSubtotal);
+              o_sublistObjCOA.setSublistValue({
+                id: "custpage_amount",
+                line: countProject - 1,
+                type: serverWidget.FieldType.TEXT,
+                value: totalProject,
+              });
 
-              // subdifference = totalProject - totalBill;
-              // // log.debug("subdifference", subdifference);
-              // o_sublistObjCOA.setSublistValue({
-              //   id: "custpage_difference",
-              //   line: countBill, //parseInt(j),
-              //   type: serverWidget.FieldType.TEXT,
-              //   value: subdifference,
-              // });
+              var lineSubtotal = countProject - 1;
+              //log.debug("lineSubtotal", lineSubtotal);
 
-              // //log.debug("countBill", countBill);
+              subdifference = totalProject - totalBill;
+              // log.debug("subdifference", subdifference);
+              o_sublistObjCOA.setSublistValue({
+                id: "custpage_difference",
+                line: countBill, //parseInt(j),
+                type: serverWidget.FieldType.TEXT,
+                value: subdifference,
+              });
 
-              // countBill = countBill + 1;
+              //log.debug("countBill", countBill);
+
+              countBill = countBill + 1;
             }
           } else {
-             if (a > 0) {
-            //   var newLine = a + 1;
-            //   log.debug("newLine", newLine);
-            // } else {
+            if (a > 0) {
+              var newLine = a + 1;
+              log.debug("newLine", newLine);
+            } else {
               //  log.debug("newLine", newLine);
-            
-             // masterObj.countProject=((newArray.length) -1);
-             // countBill=countSL++;
-               countProject++; 
-
-             }
               o_sublistObjCOA.setSublistValue({
                 id: "custpage_vendor",
-                line: countProject,
+                line: newLine,
                 type: serverWidget.FieldType.TEXT,
                 value: getVendor,
               });
@@ -787,7 +698,7 @@
               if (getProjectType) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_type",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getProjectType,
                 });
@@ -796,7 +707,7 @@
               if (getCategory) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_category",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getCategory,
                 });
@@ -808,31 +719,31 @@
                 finalTotalProject = finalTotalProject + positiveProject;
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_amount",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: positiveProject,
                 });
 
-                // o_sublistObjCOA.setSublistValue({
-                //   id: "custpage_amount",
-                //   line: lineSubtotal,
-                //   type: serverWidget.FieldType.TEXT,
-                //   value: totalProject,
-                // });
+                o_sublistObjCOA.setSublistValue({
+                  id: "custpage_amount",
+                  line: lineSubtotal,
+                  type: serverWidget.FieldType.TEXT,
+                  value: totalProject,
+                });
 
-                // subdifference = totalProject - totalBill;
-                // // log.debug("subdifference", subdifference);
-                // o_sublistObjCOA.setSublistValue({
-                //   id: "custpage_difference",
-                //   line: lineSubtotal, //parseInt(j),
-                //   type: serverWidget.FieldType.TEXT,
-                //   value: subdifference,
-                // });
+                subdifference = totalProject - totalBill;
+                // log.debug("subdifference", subdifference);
+                o_sublistObjCOA.setSublistValue({
+                  id: "custpage_difference",
+                  line: lineSubtotal, //parseInt(j),
+                  type: serverWidget.FieldType.TEXT,
+                  value: subdifference,
+                });
               }
               if (getDate) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_datecreated",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getDate,
                 });
@@ -841,7 +752,7 @@
               if (getStartDate) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_datestart",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getStartDate,
                 });
@@ -850,7 +761,7 @@
               if (getEndDate) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_dateend",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getEndDate,
                 });
@@ -859,20 +770,19 @@
               if (getNotes) {
                 o_sublistObjCOA.setSublistValue({
                   id: "custpage_notes",
-                  line: countProject,
+                  line: newLine,
                   type: serverWidget.FieldType.TEXT,
                   value: getNotes,
                 });
               }
               // newLine= newLine + 1;
-           // }
+            }
 
-           // newLine = newLine + 1;
+            newLine = newLine + 1;
             //newLine++;
-            
+            log.debug("newLine after", newLine);
           }
         }
-      
 
         let finalDifference = 0;
         finalDifference =
