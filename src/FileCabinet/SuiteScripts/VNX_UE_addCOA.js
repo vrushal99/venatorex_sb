@@ -51,7 +51,6 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
       var finalTotalBill = 0
       var finalTotalProject = 0
       var masterObjArr = []
-      var subdifference = 0
       var countProject = 0
       var countBill = 0
       var o_sublistObjCOA = o_form.getSublist({
@@ -93,6 +92,7 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
             label: 'Amount'
           })
           getAmount = Math.abs(parseFloat(getAmount))
+          finalTotalProject += getAmount
 
           var getDate = searchResult[i].getValue({
             name: 'created',
@@ -122,25 +122,31 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
             o => o.getVendor1 === getVendor1
           )
 
-          if (_logValidation(objInMasterObj)) {
+          if (!_logValidation(objInMasterObj)) {
             let masterObjIndex = masterObjArr.length
             if (_logValidation(masterObjIndex)) {
-              let subtotalLineVal =
-                countBill > countProject ? countBill : countProject
               let prevObj = masterObjArr[masterObjIndex - 1]
+              //log.debug('prevObj', prevObj);
+              let subtotalLineVal =
+                prevObj.coaVendorLineSet >= prevObj.billLineSet
+                  ? prevObj.coaVendorLineSet
+                  : prevObj.billLineSet
+              // log.debug({
+              //   title: '(prevObj.coaVendorLineSet >= prevObj.billLineSet) ? prevObj.coaVendorLineSet : prevObj.billLineSet',
+              //   details: (prevObj.coaVendorLineSet >= prevObj.billLineSet) ? prevObj.coaVendorLineSet : prevObj.billLineSet
+              // })
+              //log.debug('subtotalLineVal', subtotalLineVal);
+              subtotalLineVal++
               prevObj.subtotalLineSet = subtotalLineVal
-              prevObj.coaVendorLineSet = subtotalLineVal
-              prevObj.billLineSet = subtotalLineVal
-              prevObj.totalDiff = getTotalCoaAmount - getTotalBillAmount
+              //prevObj.coaVendorLineSet = subtotalLineVal;
+              //prevObj.billLineSet = subtotalLineVal;
+              prevObj.totalDiff =
+                prevObj.getTotalCoaAmount - prevObj.getTotalBillAmount
+              subtotalLineVal++
               countProject = subtotalLineVal
               countBill = subtotalLineVal
-
-              setSubtotalLine(
-                o_sublistObjCOA,
-                countProject,
-                countBill,
-                subdifference
-              )
+              masterObjArr[masterObjIndex - 1] = prevObj
+              setSubtotalLine(o_sublistObjCOA, prevObj)
             }
 
             masterObjArr.push({
@@ -148,11 +154,12 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
               getVendor1: getVendor1,
               getTotalCoaAmount: getAmount,
               getTotalBillAmount: 0,
-              coaVendorLineSet: countProject,
-              billLineSet: countBill,
+              coaVendorLineSet: countProject || 0,
+              billLineSet: countBill || 0,
               subtotalLineSet:
-                countBill > countProject ? countBill : countProject
+                (countBill > countProject ? countBill : countProject) || 0
             })
+            //log.debug('masterObjArr 156', masterObjArr)
 
             setCOALine(
               o_sublistObjCOA,
@@ -161,8 +168,6 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
               getProjectType,
               getCategory,
               getAmount,
-              amountTotal,
-              finalTotalProject,
               getDate,
               getStartDate,
               getEndDate,
@@ -170,7 +175,6 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
             )
 
             var searchResultCountBill = searchForBill(newRecordObj, getVendor1)
-
             var billLength = searchResultCountBill.length
 
             if (_logValidation(searchResultCountBill)) {
@@ -190,13 +194,9 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
                   name: 'amount',
                   label: 'Amount'
                 })
-
                 var parseBill = parseFloat(getAmountBill)
-
                 var posBill = Math.abs(parseBill)
-
                 finalTotalBill = finalTotalBill + posBill
-
                 masterObj.getTotalBillAmount += posBill
 
                 if (getBillType) {
@@ -228,10 +228,14 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
 
                 countBill++
               }
-              masterObj.billLineSet = countBill
+              masterObj.billLineSet = countBill - 1
               masterObjArr[masterObjIndex] = masterObj
             }
           } else {
+            // log.debug({
+            //   title: 'objInMasterObj 234',
+            //   details: objInMasterObj
+            // })
             objInMasterObj.coaVendorLineSet = ++countProject
             objInMasterObj.getTotalCoaAmount += getAmount
             masterObjArr[objInMasterObj.index] = objInMasterObj
@@ -243,17 +247,26 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
               getProjectType,
               getCategory,
               getAmount,
-              amountTotal,
-              finalTotalProject,
               getDate,
               getStartDate,
               getEndDate,
               getNotes
             )
 
-            finalTotalProject = finalTotalProject + getAmount
+            //finalTotalProject = finalTotalProject + getAmount
           }
         }
+
+        let lastObj = masterObjArr[masterObjArr.length - 1]
+        let subtotalLineVal =
+          lastObj.coaVendorLineSet >= lastObj.billLineSet
+            ? lastObj.coaVendorLineSet
+            : lastObj.billLineSet
+        subtotalLineVal++
+        lastObj.subtotalLineSet = subtotalLineVal
+        lastObj.totalDiff =
+          lastObj.getTotalCoaAmount - lastObj.getTotalBillAmount
+        setSubtotalLine(o_sublistObjCOA, lastObj)
       }
 
       finalSublist.setSublistValue({
@@ -284,45 +297,40 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
     }
   }
 
-  function setSubtotalLine (
-    o_sublistObjCOA,
-    countProject,
-    countBill,
-    subdifference
-  ) {
+  function setSubtotalLine (o_sublistObjCOA, prevObj) {
     o_sublistObjCOA.setSublistValue({
       id: 'custpage_billtype',
-      line: countProject,
+      line: prevObj.subtotalLineSet,
       type: serverWidget.FieldType.TEXT,
       value: 'Bill Subtotal'
     })
 
     o_sublistObjCOA.setSublistValue({
       id: 'custpage_amount_bill',
-      line: countProject,
+      line: prevObj.subtotalLineSet,
       type: serverWidget.FieldType.TEXT,
-      value: totalBill
+      value: prevObj.getTotalBillAmount
     })
 
     o_sublistObjCOA.setSublistValue({
       id: 'custpage_notes',
-      line: countProject - 1,
+      line: prevObj.subtotalLineSet,
       type: serverWidget.FieldType.TEXT,
       value: 'Project Subtotal'
     })
 
     o_sublistObjCOA.setSublistValue({
       id: 'custpage_amount',
-      line: countProject - 1,
+      line: prevObj.subtotalLineSet,
       type: serverWidget.FieldType.TEXT,
-      value: totalProject
+      value: prevObj.getTotalCoaAmount
     })
 
     o_sublistObjCOA.setSublistValue({
       id: 'custpage_difference',
-      line: countBill,
+      line: prevObj.subtotalLineSet,
       type: serverWidget.FieldType.TEXT,
-      value: subdifference
+      value: prevObj.totalDiff
     })
   }
 
@@ -333,8 +341,6 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
     getProjectType,
     getCategory,
     getAmount,
-    amountTotal,
-    finalTotalProject,
     getDate,
     getStartDate,
     getEndDate,
@@ -421,6 +427,7 @@ define(['N/runtime', 'N/ui/serverWidget', 'N/search'], function (
         search.createColumn({
           name: 'custrecord_coa_vendor',
           join: 'CUSTRECORD_COA_PROJECT_NAME',
+          sort: search.Sort.ASC,
           label: 'Vendor'
         }),
         search.createColumn({
