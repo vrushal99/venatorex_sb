@@ -2,13 +2,13 @@
  *@NApiVersion 2.1
  *@NScriptType UserEventScript
  */
-define([
-  'N/runtime',
-  'N/ui/serverWidget',
-  'N/search',
-  'N/file',
-  'N/https'
-], function (runtime, serverWidget, search, file, https) {
+ define(['N/runtime', 'N/ui/serverWidget', 'N/search', "N/file",
+ "N/https",], function (
+  runtime,
+  serverWidget,
+  search,
+  file, https
+) {
   function beforeLoad (context) {
     try {
       var currentScript = runtime.getCurrentScript()
@@ -16,12 +16,10 @@ define([
       var recordObj = context.newRecord
       var newRecordid = context.newRecord.id
       var o_form = context.form
-      var newArray = []
-      var finalObj = {}
+      var newArray=[];
       var customer = recordObj.getValue({
         fieldId: 'parent'
       })
-      o_form.clientScriptModulePath = "SuiteScripts/VNX_CS_printCSV.js";
 
       var searchResult = searchForCOAProjects(newRecordid)
 
@@ -31,10 +29,9 @@ define([
       })
 
       o_form.addButton({
-        id: 'custpage_csv_button',
-        label: 'Print COA & BILLS',
-        function:'CallforSuitelettoPrint()'
-      })
+        id: "custpage_csv_button",
+        label: "Print COA & BILLS",
+      });
 
       var mainTab = o_form.addSubtab({
         id: 'custpage_main_tabcomparison',
@@ -44,141 +41,142 @@ define([
 
       o_form = addSublistfields(o_form)
 
-      o_form = addSublistDetails(o_form, searchResult, context, finalObj)
+      o_form = addSublistDetails(
+        o_form,
+        searchResult,
+        context,
+        newArray
 
-      var content = 'COA & BILLS COMPARISION' + '\n' + '\n' + '\n'
-      content +=
-        'Vendor' +
-        ',' +
-        'Project Type' +
-        ',' +
-        'Category' +
-        ',' +
-        'Date Created' +
-        ',' +
-        'Start Date' +
-        ',' +
-        'End Date' +
-        ',' +
-        'Notes' +
-        ',' +
-        'Amount' +
-        ',' +
-        'Type' +
-        ',' +
-        'Bill Amount' +
-        ',' +
-        'Bill Date' +
-        ',' +
-        'Subtotal Difference' +
-        '\n' +
-        '\n'
+      )
 
-      log.debug('finalObj statr', finalObj);
 
-      
 
-      for (var i = 0; i < finalObj.length; i++) {
-        var vendor = finalObj[i].vendor
-        var project_type = finalObj[i].project_type
-        var category = finalObj[i].category
-        var date_created = finalObj[i].date_created
-        var start_date = finalObj[i].start_date
-        var end_date = finalObj[i].end_date
-        var notes = finalObj[i].notes
-        var amount = finalObj[i].amount
-
-        //         var subtotalCOA=newArray[i].subtotalCOA;
-        // var subtotalBill=newArray[i].subtotalBill;
-        // var subtotalDiff=newArray[i].subtotalDiff;
+      var content = "COA & BILLS COMPARISION" + "\n" + "\n" + "\n";
         content +=
-          vendor +
-          ',' +
-          project_type +
-          ',' +
-          category +
-          ',' +
-          date_created +
-          ',' +
-          start_date +
-          ',' +
-          end_date +
-          ',' +
-          notes +
-          ',' +
-          amount +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          '\n'
+          "Vendor" +
+          "," +
+          "Project Type" +
+          "," +
+          "Category" +
+          "," +
+          "Date Created" +
+          "," +
+          "Start Date" +
+          "," +
+          "End Date" +
+          "," +
+          "Notes" +
+          "," +
+          "Amount" +
+          "," +
+          "Type" +
+          "," +
+          "Bill Amount" +
+          "," +
+          "Bill Date" +
+          "," +
+          "Subtotal Difference" +
+          "\n"+"\n";
 
-        content +=
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          ' ' +
-          ',' +
-          'Project Subtotal' +
-          ',' +
-          'subtotalCOA' +
-          ',' +
-          'Bill Subtotal ' +
-          ',' +
-          'subtotalBill' +
-          ',' +
-          ' ' +
-          ',' +
-          'subtotalDiff' +
-          '\n' +
-          '\n' +
-          '\n'
-      }
+          log.debug("newArray start",newArray);
 
-      let fileObj = file.create({
-        name: 'testHelloWorld.csv',
-        fileType: file.Type.CSV,
-        contents: content
-      })
 
-      
-      fileObj.folder = 657
-      var fileId = fileObj.save()
-
-      log.debug('file saved', fileId);
-
-    
-      //  context.response.writeFile({
-      //     file:fileObj,
-      //     isInline:false
-      //  });
- return fileObj;
-
+  
+        for (var i = 0; i < newArray.length; i++) {
+          var vendor = newArray[i].vendor;
+          var project_type = newArray[i].project_type;
+          var category = newArray[i].category;
+          var date_created = newArray[i].date_created;
+          var start_date = newArray[i].start_date;
+          var end_date = newArray[i].end_date;
+          var notes = newArray[i].notes;
+          var amount = newArray[i].amount;
+  
+  //         var subtotalCOA=newArray[i].subtotalCOA;
+  // var subtotalBill=newArray[i].subtotalBill;
+  // var subtotalDiff=newArray[i].subtotalDiff;
+          content +=
+            vendor +
+            "," +
+            project_type +
+            "," +
+            category +
+            "," +
+            date_created +
+            "," +
+            start_date +
+            "," +
+            end_date +
+            "," +
+            notes +
+            "," +
+            amount +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "\n";
+  
+        
+            content +=
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            " " +
+            "," +
+            "Project Subtotal" +
+            "," +
+            "subtotalCOA" +
+            "," +
+            "Bill Subtotal " +
+            "," +
+            "subtotalBill" +
+            "," +
+            " " +
+            "," +
+            "subtotalDiff" +
+            "\n"+"\n" +"\n" ;
+            
+      }   
+        let fileObj = file.create({
+          name: "testHelloWorld.csv",
+          fileType: file.Type.CSV,
+          contents: content,
+        });
+  
+        fileObj.folder = -12;
+        var fileId = fileObj.save();
+  
+       log.debug("file saved", fileId);
+        //  context.response.writeFile({
+        //     file:fileObj,
+        //     isInline:false
+        //  });
     } catch (exp) {
       log.debug({ title: 'Éxception in main', details: exp.toString() })
     }
   }
 
-  function addSublistDetails (o_form, searchResult, context, finalObj) {
+  function addSublistDetails (o_form, searchResult, context,newArray) {
     try {
       var newRecordObj = context.newRecord.id
       var finalTotalBill = 0
       var finalTotalProject = 0
       var masterObjArr = []
-      var finalVendorArr = []
-
-      var finalVendorArr1 = []
+      var finalVendorArr = [];
+      
+      var finalVendorArr1=[];
       var countProject = 0
       var countBill = 0
       var o_sublistObjCOA = o_form.getSublist({
@@ -250,42 +248,43 @@ define([
             o => o.getVendor1 === getVendor1
           )
 
-          // log.debug('objInMasterObj',objInMasterObj)
-
+          // log.debug('objInMasterObj',JSON.stringify(objInMasterObj))
+          
           // let objMasterIndex = objInMasterObj.index;
 
           // log.debug('objMasterIndex',objMasterIndex)
+             
+        finalVendorArr.push({
+          vendor: getVendor,
+          project_type: getProjectType,
+          category: getCategory,
+          date_created: getDate,
+          start_date: getStartDate,
+          end_date: getEndDate,
+          notes: getNotes,
+          amount: getAmount,
+        });
 
-          finalVendorArr.push({
-            vendor: getVendor,
-            project_type: getProjectType,
-            category: getCategory,
-            date_created: getDate,
-            start_date: getStartDate,
-            end_date: getEndDate,
-            notes: getNotes,
-            amount: getAmount
-          })
+        log.debug("final vendor arr top",finalVendorArr);
+         
+  //       let fileterResVen = finalVendorArr.filter(
+  //         x => x.vendor === getVendor
+  //       )
 
-          // log.debug("final vendor arr top",finalVendorArr);
+  //       log.debug('fileterResVen',fileterResVen)
 
-          //       let fileterResVen = finalVendorArr.filter(
-          //         x => x.vendor === getVendor
-          //       )
+  //       for(let iterator of fileterResVen){
 
-          //       log.debug('fileterResVen',fileterResVen)
+  //         let obj = finalVendorArr[iterator];
 
-          //       for(let iterator of fileterResVen){
+  //         obj.index = objMasterIndex
 
-          //         let obj = finalVendorArr[iterator];
+  //         finalVendorArr[iterator] = obj
 
-          //         obj.index = objMasterIndex
+  //       }
 
-          //         finalVendorArr[iterator] = obj
 
-          //       }
-
-          // log.debug("final vendor arr after iterator",finalVendorArr);
+  // log.debug("final vendor arr after iterator",finalVendorArr);
 
           if (!_logValidation(objInMasterObj)) {
             let masterObjIndex = masterObjArr.length
@@ -313,6 +312,7 @@ define([
               countBill = subtotalLineVal
               masterObjArr[masterObjIndex - 1] = prevObj
               setSubtotalLine(o_sublistObjCOA, prevObj)
+
             }
 
             masterObjArr.push({
@@ -326,7 +326,8 @@ define([
                 (countBill > countProject ? countBill : countProject) || 0
             })
             //log.debug('masterObjArr 156', masterObjArr)
-
+  
+          
             setCOALine(
               o_sublistObjCOA,
               countProject,
@@ -362,9 +363,9 @@ define([
                 })
 
                 var vendorBill = searchResultCountBill[j].getValue({
-                  name: 'entityid',
-                  join: 'vendor',
-                  label: 'Name'
+                  name: "entityid",
+                  join: "vendor",
+                  label: "Name"
                 })
 
                 var parseBill = parseFloat(getAmountBill)
@@ -399,22 +400,16 @@ define([
                   })
                 }
 
-                finalVendorArr1.push({
+
+
+                finalVendorArr1.push({ 
+                  index: masterObjIndex,
                   vendor: vendorBill,
                   billtype: getBillType,
                   billdate: getDateBill,
                   billamount: getAmountBill,
-                  subtotalCOA:masterObjArr.getTotalCoaAmount,
-                  subtotalBill:masterObjArr.getTotalBillAmount,
-                  subtotalDiff:masterObjArr.getTotalCoaAmount-masterObjArr.getTotalBillAmount
-                })
-
-                // finalVendorArr.push({
-                //   vendor:vendorBill,
-                //   subtotalCOA:masterObjArr.getTotalCoaAmount,
-                //   subtotalBill:masterObjArr.getTotalBillAmount,
-                //   subtotalDiff:masterObjArr.getTotalCoaAmount-masterObjArr.getTotalBillAmount
-                // });
+                });
+              
 
                 countBill++
               }
@@ -422,10 +417,10 @@ define([
               masterObjArr[masterObjIndex] = masterObj
             }
           } else {
-            // log.debug({
-            //   title: 'objInMasterObj 234',
-            //   details: objInMasterObj
-            // })
+            log.debug({
+              title: 'objInMasterObj 234',
+              details: objInMasterObj
+            })
             objInMasterObj.coaVendorLineSet = ++countProject
             objInMasterObj.getTotalCoaAmount += getAmount
             masterObjArr[objInMasterObj.index] = objInMasterObj
@@ -441,14 +436,10 @@ define([
               getStartDate,
               getEndDate,
               getNotes
-            )
+            );
 
-
-          
             //finalTotalProject = finalTotalProject + getAmount
           }
-         
-
         }
 
         let lastObj = masterObjArr[masterObjArr.length - 1]
@@ -461,44 +452,59 @@ define([
         lastObj.totalDiff =
           lastObj.getTotalCoaAmount - lastObj.getTotalBillAmount
         setSubtotalLine(o_sublistObjCOA, lastObj)
+
       }
 
       //log.debug('finalvendorarr',finalVendorArr);
-      log.debug('finalVendorArr1', finalVendorArr1)
 
-      let fileterResVen = [...new Set(finalVendorArr.map(item => item.vendor))]
+      let fileterResVen = [...new Set(finalVendorArr.map(item => item.vendor))];
+        
+       // log.debug('fileterResVen map',fileterResVen)
 
-      // log.debug('fileterResVen map',fileterResVen)
+        let finalVendorArrLen = fileterResVen.length;
 
-      let finalVendorArrLen = fileterResVen.length
+        //log.debug("array length",finalVendorArrLen);
 
-      //log.debug("array length",finalVendorArrLen);
+        for(let i = 0; i < finalVendorArrLen; i++){
+  
+  
+          let vendorName = fileterResVen[i];
+  
+          var fileterRes = finalVendorArr.filter(
+            x => x.vendor === vendorName
+          )
+  
+         // log.debug('fileterRes',fileterRes)
 
-      var Obj = {}
+      
 
-      for (let i = 0; i < finalVendorArrLen; i++) {
-        let vendorName = fileterResVen[i]
+          var Obj = {   
 
-        var fileterRes = finalVendorArr.filter(x => x.vendor === vendorName)
+           
 
-        log.debug('fileterRes', fileterRes)
+            COA:fileterRes,
+            BILL:finalVendorArr1,
+            
+          
+        };
+        // log.debug("Obj",Obj);
 
-        let filterBill = finalVendorArr1.filter(y => y.vendor === vendorName)
+        //  var obj2={
+        //   vendorName:Obj
+        //  }
+        //  log.debug("obj2",obj2);
+        
+        newArray.push({
+          vendorName:Obj
+        });
+      
 
-        log.debug('filterBill', filterBill)
-
-        var Obj = {
-          COA: fileterRes,
-          BILL: filterBill
+         log.debug("newArray",newArray);
         }
-        log.debug('Obj', Obj)
 
-        finalObj[vendorName] = Obj
 
-        //  log.debug("finalObj",finalObj);
-      }
 
-      log.debug('finalObj', finalObj)
+       
 
       finalSublist.setSublistValue({
         id: 'custpage_total_project',
@@ -725,10 +731,10 @@ define([
 
         search.createColumn({ name: 'amount', label: 'Amount' }),
         search.createColumn({
-          name: 'entityid',
-          join: 'vendor',
-          label: 'Name'
-        })
+          name: "entityid",
+          join: "vendor",
+          label: "Name"
+       }),
       ]
     })
     var searchResultCountBill = vendorbillSearchObj.run().getRange({
